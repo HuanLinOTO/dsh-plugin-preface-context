@@ -1,0 +1,45 @@
+{
+  "extends": "../dsh/tsconfig.base.client.json",
+  "compilerOptions": {
+    "outDir": "lib/types/client",
+    "rootDir": "src",
+    "composite": false,
+    "incremental": false,
+    "declaration": true,
+    "declarationMap": false,
+    "sourceMap": false,
+    "exactOptionalPropertyTypes": false,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "jsx": "react-jsx",
+    "typeRoots": [
+      "./node_modules/@types",
+      "C:/Users/Administrator/.dsh/source/current/node_modules/@types",
+      "C:/Users/Administrator/.dsh/source/current/scripts/types"
+    ],
+    "types": ["node"],
+    "paths": {
+      "@deepseek-ai/cordis": ["C:/Users/Administrator/.dsh/source/current/vendor/cordis/lib/types/index.d.ts"],
+      "@deepseek-ai/cosmokit": ["C:/Users/Administrator/.dsh/source/current/vendor/cosmokit/lib/types/index.d.ts"],
+      "@deepseek-ai/schemastery": ["C:/Users/Administrator/.dsh/source/current/vendor/schemastery/lib/types/index.d.ts"],
+      "@deepseek-ai/dsh-client-store": ["C:/Users/Administrator/.dsh/source/current/packages/client/store/lib/types/index.d.ts"],
+      "@deepseek-ai/dsh-client-locale": ["C:/Users/Administrator/.dsh/source/current/packages/client/locale/lib/types/index.d.ts"],
+      "@deepseek-ai/dsh-client-locale/client": ["C:/Users/Administrator/.dsh/source/current/packages/client/locale/lib/types/client/index.d.ts"],
+      "@deepseek-ai/dsh-client-ui-slots": ["C:/Users/Administrator/.dsh/source/current/packages/client/ui-slots/lib/types/index.d.ts"],
+      "@deepseek-ai/dsh-client-ui-slots/client": ["C:/Users/Administrator/.dsh/source/current/packages/client/ui-slots/lib/types/client/index.d.ts"],
+      "@deepseek-ai/dsh-client-ui-primitives": ["C:/Users/Administrator/.dsh/source/current/packages/client/ui-primitives/lib/types/index.d.ts"],
+      "@deepseek-ai/dsh-client-ui-primitives/client": ["C:/Users/Administrator/.dsh/source/current/packages/client/ui-primitives/lib/types/client/index.d.ts"],
+      "@deepseek-ai/dsh-client-ui-settings": ["C:/Users/Administrator/.dsh/source/current/packages/client/ui-settings/lib/types/index.d.ts"],
+      "@deepseek-ai/dsh-client-ui-settings/client": ["C:/Users/Administrator/.dsh/source/current/packages/client/ui-settings/lib/types/client/index.d.ts"],
+      "@deepseek-ai/dsh-client-ui-settings-plugins": ["C:/Users/Administrator/.dsh/source/current/packages/client/ui-settings-plugins/lib/types/index.d.ts"],
+      "@deepseek-ai/dsh-client-ui-settings-plugins/client": ["C:/Users/Administrator/.dsh/source/current/packages/client/ui-settings-plugins/lib/types/client/index.d.ts"],
+      "@deepseek-ai/dsh-client-ui-renderer": ["C:/Users/Administrator/.dsh/source/current/packages/client/ui-renderer/lib/types/index.d.ts"],
+      "@deepseek-ai/dsh-client-ui-renderer/client": ["C:/Users/Administrator/.dsh/source/current/packages/client/ui-renderer/lib/types/client/index.d.ts"],
+      "@deepseek-ai/dsh-client-connection": ["C:/Users/Administrator/.dsh/source/current/packages/client/connection/lib/types/index.d.ts"],
+      "@deepseek-ai/dsh-client-connection/client": ["C:/Users/Administrator/.dsh/source/current/packages/client/connection/lib/types/client/index.d.ts"],
+      "react": ["C:/Users/Administrator/.dsh/source/current/node_modules/@types/react/index.d.ts"],
+      "react/jsx-runtime": ["C:/Users/Administrator/.dsh/source/current/node_modules/@types/react/jsx-runtime.d.ts"]
+    }
+  },
+  "include": ["src/client"]
+}
