@@ -21,12 +21,12 @@ export interface PrefaceConfig {
  * Strict by construction: unknown keys fail validation here, even though the
  * settings service itself is non-strict and would otherwise accept them.
  */
-export declare const Config: import("C:/Users/Administrator/.dsh/source/current/vendor/schemastery/lib/types").default<Schemastery.ObjectS<{
-    enabled: import("C:/Users/Administrator/.dsh/source/current/vendor/schemastery/lib/types").default<boolean, boolean>;
-    contextText: import("C:/Users/Administrator/.dsh/source/current/vendor/schemastery/lib/types").default<string, string>;
+export declare const Config: import("@deepseek-ai/schemastery").default<Schemastery.ObjectS<{
+    enabled: import("@deepseek-ai/schemastery").default<boolean, boolean>;
+    contextText: import("@deepseek-ai/schemastery").default<string, string>;
 }>, Schemastery.ObjectT<{
-    enabled: import("C:/Users/Administrator/.dsh/source/current/vendor/schemastery/lib/types").default<boolean, boolean>;
-    contextText: import("C:/Users/Administrator/.dsh/source/current/vendor/schemastery/lib/types").default<string, string>;
+    enabled: import("@deepseek-ai/schemastery").default<boolean, boolean>;
+    contextText: import("@deepseek-ai/schemastery").default<string, string>;
 }>>;
 /**
  * Resolve a raw config patch through the schema, returning a full

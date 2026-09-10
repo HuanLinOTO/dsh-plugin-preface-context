@@ -4,7 +4,7 @@
  * namespace registration, composition resolution, validation, revisions,
  * watchers, and the `settings/updated` commit event; only raw-document
  * storage is abstract. This is the dev-time stand-in for the file-backed
- * `@deepseek-ai/dsh-settings-local`, so the tests exercise the real
+ * `@deepseek-ai/dsh-settings-file`, so the tests exercise the real
  * settings semantics against a synchronous in-memory document.
  */
 
