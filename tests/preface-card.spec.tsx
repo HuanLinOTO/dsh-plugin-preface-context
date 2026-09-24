@@ -21,11 +21,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Stub the browser-bundle icon import with a no-op component.
 vi.mock('@deepseek-ai/dsh-client-ui-primitives', () => ({
-  IconChevronDownOutline14: ({ className }: { className?: string }) =>
+  IconChevronDownOutlineRegular: ({ className }: { className?: string }) =>
     null as never,
 }))
 
-import type { SettingsScope, SettingsScopeSnapshot } from '@deepseek-ai/dsh-client-ui-settings/client'
+import type { ConfigForm, ConfigFormSnapshot } from '@deepseek-ai/dsh-client-ui-settings/client'
 import { PrefaceCard } from '../src/client/preface-card.tsx'
 import type { PrefaceCardProps } from '../src/client/preface-card.tsx'
 import { PrefaceCardController } from '../src/client/preface-card-controller.ts'
@@ -36,14 +36,14 @@ afterEach(cleanup)
 
 const t: PrefaceCardProps['t'] = (key) => en[key as keyof typeof en]
 
-/** A minimal in-memory SettingsScope stub. */
-function stubScope(initial: PrefaceConfig, base: Partial<PrefaceConfig> = initial, opts: { writable?: boolean; available?: boolean } = {}): SettingsScope<PrefaceConfig> {
-  let value = initial
+/** A minimal in-memory ConfigForm stub. */
+function stubScope(initial: PrefaceConfig, base: Partial<PrefaceConfig> = initial, opts: { writable?: boolean; available?: boolean } = {}): ConfigForm<Record<string, unknown>> {
+  let value: Record<string, unknown> = { ...initial }
   let user: Record<string, unknown> | undefined = undefined
   const listeners = new Set<() => void>()
   const writable = opts.writable ?? true
   const available = opts.available ?? true
-  const snapshot = (): SettingsScopeSnapshot<PrefaceConfig> => ({
+  const snapshot = (): ConfigFormSnapshot<Record<string, unknown>> => ({
     status: available ? 'ready' : 'unavailable',
     value,
     base,
@@ -58,10 +58,12 @@ function stubScope(initial: PrefaceConfig, base: Partial<PrefaceConfig> = initia
       listeners.add(cb)
       return () => { listeners.delete(cb) }
     },
+    mutate: async () => true,
     set: async (field: string, valueArg: unknown) => {
       value = { ...value, [field]: valueArg }
       user = { ...(user ?? {}), [field]: valueArg }
       for (const cb of listeners) cb()
+      return true
     },
     unset: async (field: string) => {
       const next = { ...value }
@@ -73,6 +75,7 @@ function stubScope(initial: PrefaceConfig, base: Partial<PrefaceConfig> = initia
         user = Object.keys(nextUser).length === 0 ? undefined : nextUser
       }
       for (const cb of listeners) cb()
+      return true
     },
   }
 }
@@ -86,12 +89,22 @@ function stubUseSnapshot(controller: PrefaceCardController): PrefaceCardProps['u
 function cardProps(controller: PrefaceCardController): PrefaceCardProps {
   const actions = controller.inject()
   return {
+    view: 'page',
     t,
     usePrefaceCard: stubUseSnapshot(controller),
     hooks: { prefaceCard: controller.snapshot },
     ...actions,
   }
 }
+
+describe('PrefaceCard summary view', () => {
+  it('renders the one-line description for the summary view', () => {
+    const scope = stubScope({ enabled: true, contextText: '' })
+    const controller = new PrefaceCardController(scope)
+    const { container } = render(<PrefaceCard {...cardProps(controller)} view="summary" />)
+    expect(container.textContent).toBe(en[('description' as keyof typeof en)])
+  })
+})
 
 describe('PrefaceCard availability', () => {
   it('renders nothing when the namespace is unavailable', () => {

@@ -1,16 +1,18 @@
 /**
- * Preface-context settings plugin, browser half. Registers the
- * `preface-context` card into the shell-declared `settings.plugin.item` slot
- * (the "插件配置" settings page), keyed by the `preface-context` settings
- * namespace. The card's controller binds the namespace through
- * `ctx.settingsScope.bind()`, which reads/writes through the standard
- * `settings.describe` / `settings.mutate` RPCs (the apiproxy accepts any
- * registered namespace — no allowlist gate on current upstream dsh).
+ * Preface-context configuration page, browser half. Registers the
+ * `preface-context` card into the Plugins page's `plugins.row.config` slot,
+ * keyed by `<package>#<row id>`, so it appears while the bundle row is enabled
+ * and the Host serves the entry's config.
+ *
+ * Since dsh 0.1.7-rc.1 the client settings transport is `ctx.configForms`
+ * (`settingsScope` is gone): the controller binds the entry's shared
+ * `ConfigForm` through `ctx.configForms.get(entryId)`, whose reads ride the
+ * settings describe mirror and whose writes go through `settings.mutate`.
  *
  * Export discipline: value-imports ONLY the frozen platform module table
  * (React / cordis / ui-primitives); every other `@deepseek-ai/*` import is
  * type-only (erased at build) — values arrive via cordis injection
- * (`ctx.settingsScope` is the read/write channel).
+ * (`ctx.configForms` is the read/write channel).
  */
 import type { Context } from '@deepseek-ai/cordis';
 import { type PrefaceLocaleKey } from './locales.ts';
@@ -18,22 +20,21 @@ export type { PrefaceCardProps } from './preface-card.tsx';
 export type { PrefaceLocaleKey } from './locales.ts';
 declare module '@deepseek-ai/dsh-client-ui-slots' {
     interface LocaleNamespaceMap {
-        /** The preface-context settings card copy. */
+        /** The preface-context configuration card copy. */
         'settings.preface-context': PrefaceLocaleKey;
     }
 }
 /**
- * Required services (cordis fiber inject). `settingsScope` is provided by the
+ * Required services (cordis fiber inject). `configForms` is provided by the
  * ui-settings base plugin; `locale` by the locale plugin; `slots` is the
- * composition root. The target slot is declared by ui-settings-plugins'
- * `configurable` tab, whose activation order relative to this one is
- * unconstrained; registration depends on the slot through `slots.inject()`.
+ * composition root. Registration is gated on the Host serving the entry's
+ * config through `configForms.whileServed`.
  */
 export declare const inject: string[];
 /**
- * Register the preface-context card once the `settings.plugin.item`
- * declaration is on the ledger, wire its controller to the settings scope,
- * and keep it fresh on every pushed invalidation.
+ * Register the preface-context card while the Host serves the entry's config,
+ * wire its controller to the shared config form, and keep it fresh on every
+ * pushed invalidation.
  * @param ctx - client root context.
  */
 export declare function apply(ctx: Context): void;

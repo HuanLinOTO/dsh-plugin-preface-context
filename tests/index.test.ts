@@ -1,16 +1,16 @@
 /**
- * Unit tests for the preface-context host entry's message builder
- * (`buildPrefaceMessage`, src/index.ts).
+ * Unit tests for the preface-context host entry (`buildPrefaceMessage` and the
+ * `agent/created` wiring, src/index.ts).
  *
- * The `agent/session-start` → `agent.inject()` wiring itself is a one-liner
- * over a cordis emit event; what is worth testing is the decision function
- * that gates injection: disabled config, empty text, and the message shape
- * when injection happens.
+ * `agent/created` dispatch itself is a one-liner over a cordis event; what is
+ * worth testing is the decision function that gates injection (disabled config,
+ * empty text, message shape) and that the listener reads the LIVE volatile
+ * config references at each event.
  */
 
-import { describe, expect, it } from 'vitest'
-import { buildPrefaceMessage } from '../src/index.ts'
-import type { PrefaceConfig } from '../src/config.ts'
+import { describe, expect, it, vi } from 'vitest'
+import { apply, buildPrefaceMessage } from '../src/index.ts'
+import type { PrefaceConfig, PrefaceEntryConfig } from '../src/config.ts'
 
 function config(overrides: Partial<PrefaceConfig> = {}): PrefaceConfig {
   return { enabled: true, contextText: '', ...overrides }
@@ -36,11 +36,10 @@ describe('buildPrefaceMessage', () => {
     expect(message!.content).toEqual([{ type: 'text', text: 'You are a helpful assistant.' }])
   })
 
-  it('tags the message as plugin-sourced instructions context', () => {
+  it('tags the message as this plugin producer with the instructions form', () => {
     const message = buildPrefaceMessage(config({ contextText: 'preface' }))
     expect(message!.source).toEqual({
-      kind: 'plugin',
-      plugin: 'dsh-plugin-preface-context',
+      kind: 'preface-context',
       form: 'instructions',
     })
   })
@@ -55,5 +54,57 @@ describe('buildPrefaceMessage', () => {
     const message = buildPrefaceMessage(config({ contextText: 'x' }))
     expect(message!.id).toEqual(expect.any(String))
     expect(Object.isFrozen(message)).toBe(true)
+  })
+})
+
+describe('apply agent/created wiring', () => {
+  /** A context stub capturing the plugin's `agent/created` listener. */
+  function stubContext() {
+    const listeners: Array<(payload: { agent: { inject: (message: unknown) => void } }) => void> = []
+    const ctx = {
+      inject: () => ({ dispose: () => {} }),
+      on: (_event: string, listener: (payload: never) => void) => {
+        listeners.push(listener as never)
+        return () => {}
+      },
+    }
+    return { ctx, listeners }
+  }
+
+  it('subscribes to agent/created and injects on creation', () => {
+    const { ctx, listeners } = stubContext()
+    const inject = vi.fn()
+    apply(ctx as never, { enabled: { get: () => true }, contextText: { get: () => 'live' } } as unknown as PrefaceEntryConfig)
+    expect(listeners.length).toBe(1)
+    listeners[0]!({ agent: { inject } })
+    expect(inject).toHaveBeenCalledTimes(1)
+    expect(inject.mock.calls[0]![0]).toMatchObject({ role: 'user' })
+  })
+
+  it('reads the live volatile references on every event', () => {
+    const { ctx, listeners } = stubContext()
+    const inject = vi.fn()
+    let enabled = true
+    let text = 'live'
+    apply(ctx as never, { enabled: { get: () => enabled }, contextText: { get: () => text } } as unknown as PrefaceEntryConfig)
+
+    listeners[0]!({ agent: { inject } })
+    expect(inject).toHaveBeenCalledTimes(1)
+
+    // A profile edit flips the switch: the next creation injects nothing.
+    enabled = false
+    listeners[0]!({ agent: { inject } })
+    expect(inject).toHaveBeenCalledTimes(1)
+
+    // Re-enabled with empty text: still nothing.
+    enabled = true
+    text = ''
+    listeners[0]!({ agent: { inject } })
+    expect(inject).toHaveBeenCalledTimes(1)
+
+    // Re-enabled with new text: the new value is read.
+    text = 'changed'
+    listeners[0]!({ agent: { inject } })
+    expect(inject).toHaveBeenCalledTimes(2)
   })
 })

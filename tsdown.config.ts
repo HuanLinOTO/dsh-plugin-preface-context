@@ -17,7 +17,7 @@ const ID = '@huanlin/dsh-plugin-preface-context'
 /** DSH platform modules that stay external in the host bundles (peer deps). */
 const HOST_EXTERNALS = [
   '@deepseek-ai/cordis',
-  'schemastery',
+  '@deepseek-ai/schemastery',
   '@deepseek-ai/dsh-llm',
   '@deepseek-ai/dsh-settings',
 ]
@@ -39,8 +39,8 @@ const CLIENT_EXTERNALS = [
   '@deepseek-ai/dsh-client-ui-primitives/client',
   '@deepseek-ai/dsh-client-ui-settings',
   '@deepseek-ai/dsh-client-ui-settings/client',
-  '@deepseek-ai/dsh-client-ui-settings-plugins',
-  '@deepseek-ai/dsh-client-ui-settings-plugins/client',
+  '@deepseek-ai/dsh-client-ui-plugin-manager',
+  '@deepseek-ai/dsh-client-ui-plugin-manager/client',
   '@deepseek-ai/dsh-client-ui-renderer',
   '@deepseek-ai/dsh-client-ui-renderer/client',
   '@deepseek-ai/dsh-client-connection',

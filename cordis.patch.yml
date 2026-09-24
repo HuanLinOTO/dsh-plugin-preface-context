@@ -1,8 +1,8 @@
 # Insert dsh-plugin-preface-context: injects a user-configured text block as
-# model-visible instructions context at the start of every session (agent/
-# session-start → agent.inject). The text and an enable switch are editable
-# on the "插件配置" settings page via a settings.plugin.item card bound to
-# the `preface-context` settings namespace.
+# model-visible instructions context at the start of every session
+# (agent/created → agent.inject). The text and an enable switch are the row's
+# volatile Config fields, editable on the bundle row's page in the Plugins
+# manager via a plugins.row.config card (dsh 0.1.7-rc.1).
 - insert:
     - id: dsh-plugin-preface-context
       name: '@huanlin/dsh-plugin-preface-context'

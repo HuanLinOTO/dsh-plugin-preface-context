@@ -1,8 +1,8 @@
 /**
- * The preface-context settings card: a collapsible card on the "插件配置"
- * settings page. Renders an enable toggle and a multiline textarea for the
- * context text. Stages edits locally and writes them on save through the
- * bound {@link PrefaceCardController}.
+ * The preface-context configuration card: a collapsible card on the plugin's
+ * row page in the Plugins manager (`plugins.row.config`). Renders an enable
+ * toggle and a multiline textarea for the context text. Stages edits locally
+ * and writes them on save through the bound {@link PrefaceCardController}.
  *
  * The chrome mirrors the upstream `PluginCard` shape (a header button
  * stacking name over description, a dirty pill, a rotating chevron; a body
@@ -18,10 +18,10 @@ import type { PrefaceCardFace, PrefaceCardActions } from './preface-card-control
 /** Injected dependencies of the card (slot `inject`). */
 export type PrefaceCardInjected = PrefaceCardFace & PrefaceCardActions;
 /** Props the renderer binds for the card. */
-export type PrefaceCardProps = PropsRuntime<'settings.plugin.item'> & PropsLocale<'settings.preface-context'> & InjectFace<PrefaceCardInjected>;
+export type PrefaceCardProps = PropsRuntime<'plugins.row.config'> & PropsLocale<'settings.preface-context'> & InjectFace<PrefaceCardInjected>;
 /**
  * Render the preface-context card.
- * @param props - locale copy, the card snapshot, and its form actions.
- * @returns the card, or nothing when the namespace is unavailable.
+ * @param props - the requested view, locale copy, the card snapshot, and its form actions.
+ * @returns the one-liner for `summary`, or the form for `page`.
  */
 export declare function PrefaceCard(props: PrefaceCardProps): ReactNode;

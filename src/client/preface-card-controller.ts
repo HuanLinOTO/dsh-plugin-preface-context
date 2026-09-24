@@ -1,13 +1,13 @@
 /**
- * The preface-context card's staged form over the `preface-context` settings
- * namespace.
+ * The preface-context card's staged form over the plugin's profile entry
+ * Config.
  *
  * The upstream `ui-settings-plugins` package owns a `CardForm` helper, but it
  * is an internal module (not re-exported from the package's `/client` public
  * face), so an external plugin cannot reuse it. This controller is a slim
  * equivalent: it stages the two fields (`enabled` boolean, `contextText`
- * multiline string) and writes them through the bound {@link SettingsScope}
- * on save, re-deriving its projection whenever the scope or a draft changes.
+ * multiline string) and writes them through the bound {@link ConfigForm}
+ * on save, re-deriving its projection whenever the form or a draft changes.
  *
  * Unlike the upstream `CardForm`, the `contextText` field is a multiline
  * textarea: its draft preserves internal whitespace and newlines (the
@@ -16,7 +16,7 @@
  */
 
 import type { SnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { SettingsScope, SettingsScopeSnapshot } from '@deepseek-ai/dsh-client-ui-settings/client'
+import type { ConfigForm, ConfigFormSnapshot } from '@deepseek-ai/dsh-client-ui-settings/client'
 
 /** A minimal snapshot store: a value + a listener set. Self-contained so the
  * controller does not pull `createSnapshotStore` (a browser-bundle symbol)
@@ -51,13 +51,12 @@ class MiniSnapshotStore<T> implements SnapshotStore<T> {
     return () => { this.listeners.delete(listener) }
   }
 }
-import type { PrefaceConfig } from '../config.ts'
 
 /** The two fields this card edits, as draft text. */
 export interface PrefaceDraft {
-  /** `enabled` draft — 'true' or 'false'. */
+  /** `enabled` draft �?'true' or 'false'. */
   enabled: string
-  /** `contextText` draft — the raw textarea value, whitespace preserved. */
+  /** `contextText` draft �?the raw textarea value, whitespace preserved. */
   contextText: string
 }
 
@@ -119,17 +118,17 @@ interface StagedEdit {
 }
 
 /** The default value for a field when the user-layer carries none. */
-function baseValue(snapshot: SettingsScopeSnapshot<PrefaceConfig>, field: FieldName): unknown {
+function baseValue(snapshot: ConfigFormSnapshot<Record<string, unknown>>, field: FieldName): unknown {
   return (snapshot.base as Record<string, unknown> | undefined)?.[field]
 }
 
 /** The current resolved value of a field. */
-function sectionValue(snapshot: SettingsScopeSnapshot<PrefaceConfig>, field: FieldName): unknown {
+function sectionValue(snapshot: ConfigFormSnapshot<Record<string, unknown>>, field: FieldName): unknown {
   return (snapshot.value as Record<string, unknown> | undefined)?.[field]
 }
 
 /** Whether the user layer carries an entry for a field. */
-function stored(snapshot: SettingsScopeSnapshot<PrefaceConfig>, field: FieldName): boolean {
+function stored(snapshot: ConfigFormSnapshot<Record<string, unknown>>, field: FieldName): boolean {
   const user = snapshot.user as Record<string, unknown> | undefined
   return user !== undefined && Object.hasOwn(user, field)
 }
@@ -161,14 +160,14 @@ function parse(field: FieldName, text: string): { value: unknown } | { clear: tr
  * underneath; every projection is rebuilt from the two together.
  */
 export class PrefaceCardController {
-  private readonly scope: SettingsScope<PrefaceConfig>
+  private readonly scope: ConfigForm<Record<string, unknown>>
   private readonly store: SnapshotStore<PrefaceCardState>
   private readonly staged = new Map<FieldName, StagedEdit>()
   private saving = false
   private failed = false
 
   /** @param scope - the bound settings scope for the `preface-context` namespace. */
-  constructor(scope: SettingsScope<PrefaceConfig>) {
+  constructor(scope: ConfigForm<Record<string, unknown>>) {
     this.scope = scope
     this.store = new MiniSnapshotStore<PrefaceCardState>(this.project())
     scope.subscribe(() => { this.publish() })
@@ -193,7 +192,7 @@ export class PrefaceCardController {
     }
   }
 
-  private fieldState(snapshot: SettingsScopeSnapshot<PrefaceConfig>, field: FieldName): PrefaceFieldState {
+  private fieldState(snapshot: ConfigFormSnapshot<Record<string, unknown>>, field: FieldName): PrefaceFieldState {
     const staged = this.staged.get(field)
     if (staged === undefined) {
       return { text: format(field, sectionValue(snapshot, field)), overridden: stored(snapshot, field) }
@@ -244,11 +243,12 @@ export class PrefaceCardController {
       const write = staged.clear ? { clear: true as const } : parse(field, staged.text)
       if (write === undefined) continue
       try {
-        if ('clear' in write) {
-          await this.scope.unset(field)
-        } else {
-          await this.scope.set(field, write.value)
-        }
+        // `set`/`unset` resolve to whether the Host accepted the write; a
+        // refusal (false) keeps the drafts for correction.
+        const accepted = 'clear' in write
+          ? await this.scope.unset(field)
+          : await this.scope.set(field, write.value)
+        if (!accepted) landed = false
       } catch {
         landed = false
       }

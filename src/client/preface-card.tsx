@@ -1,8 +1,8 @@
 /**
- * The preface-context settings card: a collapsible card on the "插件配置"
- * settings page. Renders an enable toggle and a multiline textarea for the
- * context text. Stages edits locally and writes them on save through the
- * bound {@link PrefaceCardController}.
+ * The preface-context configuration card: a collapsible card on the plugin's
+ * row page in the Plugins manager (`plugins.row.config`). Renders an enable
+ * toggle and a multiline textarea for the context text. Stages edits locally
+ * and writes them on save through the bound {@link PrefaceCardController}.
  *
  * The chrome mirrors the upstream `PluginCard` shape (a header button
  * stacking name over description, a dirty pill, a rotating chevron; a body
@@ -15,7 +15,7 @@
 
 import { useState, type ReactNode } from 'react'
 import clsx from 'clsx'
-import { IconChevronDownOutline14 } from '@deepseek-ai/dsh-client-ui-primitives'
+import { IconChevronDownOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import { css } from './preface-card.css.ts'
 import type { PrefaceCardFace, PrefaceCardActions } from './preface-card-controller.ts'
@@ -25,25 +25,28 @@ export type PrefaceCardInjected = PrefaceCardFace & PrefaceCardActions
 
 /** Props the renderer binds for the card. */
 export type PrefaceCardProps =
-  PropsRuntime<'settings.plugin.item'>
+  PropsRuntime<'plugins.row.config'>
   & PropsLocale<'settings.preface-context'>
   & InjectFace<PrefaceCardInjected>
 
 /**
  * Render the preface-context card.
- * @param props - locale copy, the card snapshot, and its form actions.
- * @returns the card, or nothing when the namespace is unavailable.
+ * @param props - the requested view, locale copy, the card snapshot, and its form actions.
+ * @returns the one-liner for `summary`, or the form for `page`.
  */
 export function PrefaceCard(props: PrefaceCardProps): ReactNode {
   const [open, setOpen] = useState(false)
   const { t } = props
+  // The row page draws the title and description itself; `summary` is the
+  // fallback one-liner the page shows when the row carries none.
+  if (props.view === 'summary') return t('description')
   const state = props.usePrefaceCard(snapshot => snapshot)
   if (!state.available) return null
   const title = t('title')
   const blocked = !state.dirty || state.saving
   const enabledOn = state.enabled.text === 'true'
   return (
-    <li className={clsx(css.card, open && css.cardOpen)}>
+    <div className={clsx(css.card, open && css.cardOpen)}>
       <button
         type="button"
         className={css.header}
@@ -56,7 +59,7 @@ export function PrefaceCard(props: PrefaceCardProps): ReactNode {
           <span className={css.description}>{t('description')}</span>
         </span>
         {state.dirty ? <span className={css.pending}>{t('unsaved')}</span> : null}
-        <IconChevronDownOutline14 className={clsx(css.chevron, open && css.chevronOpen)} />
+        <IconChevronDownOutlineRegular className={clsx(css.chevron, open && css.chevronOpen)} />
       </button>
       {open
         ? (
@@ -146,6 +149,6 @@ export function PrefaceCard(props: PrefaceCardProps): ReactNode {
           </div>
         )
         : null}
-    </li>
+    </div>
   )
 }

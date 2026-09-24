@@ -1,26 +1,29 @@
 /**
- * Preface-context settings plugin, browser half. Registers the
- * `preface-context` card into the shell-declared `settings.plugin.item` slot
- * (the "插件配置" settings page), keyed by the `preface-context` settings
- * namespace. The card's controller binds the namespace through
- * `ctx.settingsScope.bind()`, which reads/writes through the standard
- * `settings.describe` / `settings.mutate` RPCs (the apiproxy accepts any
- * registered namespace — no allowlist gate on current upstream dsh).
+ * Preface-context configuration page, browser half. Registers the
+ * `preface-context` card into the Plugins page's `plugins.row.config` slot,
+ * keyed by `<package>#<row id>`, so it appears while the bundle row is enabled
+ * and the Host serves the entry's config.
+ *
+ * Since dsh 0.1.7-rc.1 the client settings transport is `ctx.configForms`
+ * (`settingsScope` is gone): the controller binds the entry's shared
+ * `ConfigForm` through `ctx.configForms.get(entryId)`, whose reads ride the
+ * settings describe mirror and whose writes go through `settings.mutate`.
  *
  * Export discipline: value-imports ONLY the frozen platform module table
  * (React / cordis / ui-primitives); every other `@deepseek-ai/*` import is
  * type-only (erased at build) — values arrive via cordis injection
- * (`ctx.settingsScope` is the read/write channel).
+ * (`ctx.configForms` is the read/write channel).
  */
 
 import type { Context } from '@deepseek-ai/cordis'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
 import type {} from '@deepseek-ai/dsh-client-locale/client'
-// Type-only: pulls the settings domain's ctx.settingsScope Context merge.
+// Type-only: pulls the settings domain's ctx.configForms Context merge and the
+// ConfigForm / ConfigFormSnapshot types.
 import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
-// Type-only: pulls the plugin-config card slot's SlotMap merge (the
-// 'settings.plugin.item' keyed entry — this half's registration target).
-import type {} from '@deepseek-ai/dsh-client-ui-settings-plugins/client'
+// Type-only: pulls the Plugins page SlotMap merge (the 'plugins.row.config'
+// keyed entry — this half's registration target).
+import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
 // Type-only: pulls the renderer's ctx.slots Context merge (the composition
 // root service; moved here from the deleted dsh-client-runtime).
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
@@ -35,7 +38,7 @@ export type { PrefaceLocaleKey } from './locales.ts'
 
 declare module '@deepseek-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
-    /** The preface-context settings card copy. */
+    /** The preface-context configuration card copy. */
     'settings.preface-context': PrefaceLocaleKey
   }
 }
@@ -43,22 +46,29 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
 /** Dictionary namespace owned by this plugin. */
 const NS = 'settings.preface-context'
 
-/** Settings namespace the host half registers (must match the host constant). */
-const SETTINGS_NAMESPACE = 'preface-context'
-
 /**
- * Required services (cordis fiber inject). `settingsScope` is provided by the
- * ui-settings base plugin; `locale` by the locale plugin; `slots` is the
- * composition root. The target slot is declared by ui-settings-plugins'
- * `configurable` tab, whose activation order relative to this one is
- * unconstrained; registration depends on the slot through `slots.inject()`.
+ * Profile entry id the host composes this plugin under: the `id` of the row in
+ * `cordis.patch.yml`. It is also the settings namespace the Host serves the
+ * entry's config under, so it keys both `ctx.configForms.get` and the
+ * `plugins.row.config` registration.
  */
-export const inject = ['slots', 'locale', 'settingsScope']
+const ENTRY_ID = 'dsh-plugin-preface-context'
+
+/** `plugins.row.config` key: the bundle's package name `#` the row id. */
+const ROW_KEY = `@huanlin/dsh-plugin-preface-context#${ENTRY_ID}`
 
 /**
- * Register the preface-context card once the `settings.plugin.item`
- * declaration is on the ledger, wire its controller to the settings scope,
- * and keep it fresh on every pushed invalidation.
+ * Required services (cordis fiber inject). `configForms` is provided by the
+ * ui-settings base plugin; `locale` by the locale plugin; `slots` is the
+ * composition root. Registration is gated on the Host serving the entry's
+ * config through `configForms.whileServed`.
+ */
+export const inject = ['slots', 'locale', 'configForms']
+
+/**
+ * Register the preface-context card while the Host serves the entry's config,
+ * wire its controller to the shared config form, and keep it fresh on every
+ * pushed invalidation.
  * @param ctx - client root context.
  */
 export function apply(ctx: Context): void {
@@ -66,17 +76,19 @@ export function apply(ctx: Context): void {
 
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'preface-context: copy dictionaries')
 
-  const settingsScope = ctx.settingsScope
   const controller = new PrefaceCardController(
-    settingsScope.bind({ namespace: SETTINGS_NAMESPACE }),
+    ctx.configForms.get<Record<string, unknown>>(ENTRY_ID),
   )
 
-  ctx.slots.inject('settings.plugin.item', function* () {
-    yield ctx.slots.register({
-      name: 'settings.plugin.item',
-      key: SETTINGS_NAMESPACE,
-      locale: NS,
-      inject: (): PrefaceCardInjected => controller.inject(),
-    }, PrefaceCard)
-  })
+  ctx.effect(
+    () => ctx.configForms.whileServed([ENTRY_ID], () => ctx.slots.inject('plugins.row.config', function* () {
+      yield ctx.slots.register({
+        name: 'plugins.row.config',
+        key: ROW_KEY,
+        locale: NS,
+        inject: (): PrefaceCardInjected => controller.inject(),
+      }, PrefaceCard)
+    })),
+    'preface-context: plugin page',
+  )
 }

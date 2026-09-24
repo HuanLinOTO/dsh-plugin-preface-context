@@ -1,13 +1,13 @@
 /**
- * The preface-context card's staged form over the `preface-context` settings
- * namespace.
+ * The preface-context card's staged form over the plugin's profile entry
+ * Config.
  *
  * The upstream `ui-settings-plugins` package owns a `CardForm` helper, but it
  * is an internal module (not re-exported from the package's `/client` public
  * face), so an external plugin cannot reuse it. This controller is a slim
  * equivalent: it stages the two fields (`enabled` boolean, `contextText`
- * multiline string) and writes them through the bound {@link SettingsScope}
- * on save, re-deriving its projection whenever the scope or a draft changes.
+ * multiline string) and writes them through the bound {@link ConfigForm}
+ * on save, re-deriving its projection whenever the form or a draft changes.
  *
  * Unlike the upstream `CardForm`, the `contextText` field is a multiline
  * textarea: its draft preserves internal whitespace and newlines (the
@@ -15,13 +15,12 @@
  * preface into one line).
  */
 import type { SnapshotStore } from '@deepseek-ai/dsh-client-store';
-import type { SettingsScope } from '@deepseek-ai/dsh-client-ui-settings/client';
-import type { PrefaceConfig } from '../config.ts';
+import type { ConfigForm } from '@deepseek-ai/dsh-client-ui-settings/client';
 /** The two fields this card edits, as draft text. */
 export interface PrefaceDraft {
-    /** `enabled` draft — 'true' or 'false'. */
+    /** `enabled` draft �?'true' or 'false'. */
     enabled: string;
-    /** `contextText` draft — the raw textarea value, whitespace preserved. */
+    /** `contextText` draft �?the raw textarea value, whitespace preserved. */
     contextText: string;
 }
 /** One field's render state. */
@@ -80,7 +79,7 @@ export declare class PrefaceCardController {
     private saving;
     private failed;
     /** @param scope - the bound settings scope for the `preface-context` namespace. */
-    constructor(scope: SettingsScope<PrefaceConfig>);
+    constructor(scope: ConfigForm<Record<string, unknown>>);
     /** @returns the store the card's component reads through its bound selector. */
     get snapshot(): SnapshotStore<PrefaceCardState>;
     private project;

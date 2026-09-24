@@ -2,22 +2,22 @@
  * Unit tests for the preface-context card controller
  * (`PrefaceCardController`, src/client/preface-card-controller.ts).
  *
- * The controller is a pure state machine over a bound `SettingsScope`; these
+ * The controller is a pure state machine over a bound `ConfigForm`; these
  * tests drive it with an in-memory stub scope (no wire, no React) and assert
  * the staged-edit / save / discard / reset semantics that the card renders.
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import type { SettingsScope, SettingsScopeSnapshot } from '@deepseek-ai/dsh-client-ui-settings/client'
+import type { ConfigForm, ConfigFormSnapshot } from '@deepseek-ai/dsh-client-ui-settings/client'
 import { PrefaceCardController } from '../src/client/preface-card-controller.ts'
 import type { PrefaceConfig } from '../src/config.ts'
 
-/** A minimal in-memory SettingsScope stub for controller testing. */
-function stubScope(initial: PrefaceConfig, base: Partial<PrefaceConfig> = initial): SettingsScope<PrefaceConfig> {
-  let value = initial
+/** A minimal in-memory ConfigForm stub for controller testing. */
+function stubScope(initial: PrefaceConfig, base: Partial<PrefaceConfig> = initial): ConfigForm<Record<string, unknown>> {
+  let value: Record<string, unknown> = { ...initial }
   let user: Record<string, unknown> | undefined = undefined
   const listeners = new Set<() => void>()
-  const snapshot = (): SettingsScopeSnapshot<PrefaceConfig> => ({
+  const snapshot = (): ConfigFormSnapshot<Record<string, unknown>> => ({
     status: 'ready',
     value,
     base,
@@ -32,10 +32,12 @@ function stubScope(initial: PrefaceConfig, base: Partial<PrefaceConfig> = initia
       listeners.add(cb)
       return () => { listeners.delete(cb) }
     },
+    mutate: async () => true,
     set: async (field: string, valueArg: unknown) => {
       value = { ...value, [field]: valueArg }
       user = { ...(user ?? {}), [field]: valueArg }
       for (const cb of listeners) cb()
+      return true
     },
     unset: async (field: string) => {
       const next = { ...value }
@@ -47,6 +49,7 @@ function stubScope(initial: PrefaceConfig, base: Partial<PrefaceConfig> = initia
         user = Object.keys(nextUser).length === 0 ? undefined : nextUser
       }
       for (const cb of listeners) cb()
+      return true
     },
   }
 }
@@ -137,6 +140,19 @@ describe('save', () => {
     actions.edit('contextText', 'x')
     await new Promise((resolve) => { actions.save(); setTimeout(resolve, 0) })
     expect(controller.snapshot.getSnapshot().failed).toBe(true)
+  })
+
+  it('marks failed when the Host refuses a write (resolves false)', async () => {
+    const scope = stubScope({ enabled: true, contextText: '' })
+    vi.spyOn(scope, 'set').mockResolvedValue(false)
+    const controller = new PrefaceCardController(scope)
+    const actions = controller.inject()
+    actions.edit('contextText', 'x')
+    await new Promise((resolve) => { actions.save(); setTimeout(resolve, 0) })
+    const state = controller.snapshot.getSnapshot()
+    expect(state.failed).toBe(true)
+    // A refused write keeps the draft so the user can correct it.
+    expect(state.contextText.text).toBe('x')
   })
 })
 

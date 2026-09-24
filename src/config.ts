@@ -1,17 +1,20 @@
 /**
  * Config schema for the preface-context plugin (Schemastery, strict).
  *
- * The plugin-row config (the `entry` passed to `apply`) is the composition
- * BASE of the `preface-context` settings namespace. The settings user layer
- * is layered on top (schema defaults → base → user layer) when a settings
- * service is mounted; without one, the entry is the sole source.
+ * Since dsh 0.1.7-rc.1 every configurable value lives in the plugin's own
+ * Cordis Config: the profile-owned value is persisted in `cordis.patch.yml`
+ * under this plugin's profile entry id, and the fields a settings form may
+ * edit are declared `.volatile()` so a live edit updates the running instance
+ * without a remount. `apply` receives {@link PrefaceEntryConfig} (the volatile
+ * references) and reads them through `.get()` at session start.
  *
  * @module @huanlin/dsh-plugin-preface-context/config
  */
 
-import z from 'schemastery'
+import z from '@deepseek-ai/schemastery'
+import type { Volatile } from '@deepseek-ai/cordis'
 
-/** User-editable configuration for the preface-context plugin. */
+/** User-editable configuration values for the preface-context plugin. */
 export interface PrefaceConfig {
   /** Master switch: when false, no context is injected at session start. */
   enabled: boolean
@@ -20,26 +23,39 @@ export interface PrefaceConfig {
 }
 
 /**
- * Schemastery schema for the `preface-context` settings namespace.
+ * The plugin-row Config the Loader resolves for `apply`: each editable field is
+ * a volatile reference (`Volatile<T>`) read through `.get()`, so a profile edit
+ * reaches the running instance without remounting it.
+ */
+export interface PrefaceEntryConfig {
+  /** Master switch; read with `.get()` at session start. */
+  enabled: Volatile<boolean>
+  /** The injected text block; read with `.get()` at session start. */
+  contextText: Volatile<string>
+}
+
+/**
+ * Schemastery schema for the plugin's profile-owned Config.
  *
- * Strict by construction: unknown keys fail validation here, even though the
- * settings service itself is non-strict and would otherwise accept them.
+ * Strict by construction: unknown keys fail validation in the Loader. The
+ * `.volatile()` fields are the ones the plugin-manager configuration form may
+ * edit.
  */
 export const Config = z.object({
-  enabled: z.boolean().default(true),
-  contextText: z.string().default(''),
-})
+  enabled: z.boolean().default(true).volatile(),
+  contextText: z.string().default('').volatile(),
+}) as unknown as z<{ enabled?: boolean; contextText?: string }, PrefaceEntryConfig>
 
-/** Known config keys (for strict unknown-key rejection). */
+/** Known config keys (for strict unknown-key rejection in {@link resolvePrefaceConfig}). */
 const CONFIG_KEYS = new Set(['enabled', 'contextText'])
 
 /**
- * Resolve a raw config patch through the schema, returning a full
- * {@link PrefaceConfig} with defaults applied. Unknown keys are rejected
- * here (the settings service itself is non-strict and would otherwise accept
- * them), matching the Loader's strict validation.
+ * Resolve a raw config patch through the schema, returning full plain
+ * {@link PrefaceConfig} values with defaults applied. Unknown keys are
+ * rejected here so the helper keeps its strict contract in tests and callers
+ * that resolve a detached patch.
  * @param input - a partial or complete config object.
- * @returns the schema-resolved config.
+ * @returns the schema-resolved plain config.
  * @throws when the input carries an unknown key or a value the schema rejects.
  */
 export function resolvePrefaceConfig(input: Partial<PrefaceConfig>): PrefaceConfig {
@@ -50,5 +66,6 @@ export function resolvePrefaceConfig(input: Partial<PrefaceConfig>): PrefaceConf
       }
     }
   }
-  return Config(input) as PrefaceConfig
+  const parsed = Config(input) as unknown as PrefaceEntryConfig
+  return { enabled: parsed.enabled.get(), contextText: parsed.contextText.get() }
 }
