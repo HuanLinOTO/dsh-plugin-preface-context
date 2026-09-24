@@ -7,7 +7,7 @@ export type PrefaceLocaleKey =
   | 'contextText' | 'contextTextHint' | 'contextTextPlaceholder'
   | 'overridden' | 'reset'
   | 'save' | 'saving' | 'discard' | 'unsaved' | 'saveFailed'
-  | 'readOnly' | 'expand' | 'collapse'
+  | 'readOnly'
 
 /** English copy. */
 export const en: Record<PrefaceLocaleKey, string> = {
@@ -26,8 +26,6 @@ export const en: Record<PrefaceLocaleKey, string> = {
   unsaved: 'Unsaved',
   saveFailed: 'The deployment did not accept these values; they were left for you to correct.',
   readOnly: 'This deployment stores settings read-only.',
-  expand: 'Show settings',
-  collapse: 'Hide settings',
 }
 
 /** Simplified Chinese copy. */
@@ -47,6 +45,4 @@ export const zh: Record<PrefaceLocaleKey, string> = {
   unsaved: '未保存',
   saveFailed: '本部署没有接受这些值，已保留供你修改。',
   readOnly: '本部署的设置为只读。',
-  expand: '展开设置',
-  collapse: '收起设置',
 }

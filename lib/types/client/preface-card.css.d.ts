@@ -1,6 +1,7 @@
 /**
  * Card styles + runtime style injection for the preface-context settings
- * card.
+ * card. The card is the sole content of the plugin's dedicated row detail
+ * page (`plugins.row.config`), rendered flat with no disclosure header.
  *
  * The DSH client loader never serves `.css` artifacts — every style must be
  * injected inside the bundle's factory closure (the same contract the
@@ -18,14 +19,7 @@
 /** Class-name map consumed by the card component (CSS-modules replacement). */
 export declare const css: {
     readonly card: "dsh-pfc-card";
-    readonly cardOpen: "dsh-pfc-card--open";
-    readonly header: "dsh-pfc-header";
-    readonly headText: "dsh-pfc-head-text";
-    readonly name: "dsh-pfc-name";
-    readonly description: "dsh-pfc-description";
     readonly pending: "dsh-pfc-pending";
-    readonly chevron: "dsh-pfc-chevron";
-    readonly chevronOpen: "dsh-pfc-chevron--open";
     readonly body: "dsh-pfc-body";
     readonly readOnly: "dsh-pfc-readonly";
     readonly field: "dsh-pfc-field";

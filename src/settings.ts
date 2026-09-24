@@ -1,10 +1,10 @@
 /**
  * Host-side page wiring for the preface-context plugin.
  *
- * Since dsh 0.1.7-rc.1 there is no separate settings namespace and no
- * `ctx.settings.register`: every configurable value lives in the plugin's own
- * Cordis Config (`src/config.ts`), persisted per profile under the entry id.
- * The settings service enumerates the entry's `.volatile()` fields for forms.
+ * Since dsh 0.1.7-rc.1 there is no separate settings-page registration API:
+ * every configurable value lives in the plugin's own Cordis Config
+ * (`src/config.ts`), persisted per profile under the entry id. The settings
+ * service enumerates the entry's `.volatile()` fields for forms.
  *
  * The plugin ships its own configuration card (the client half registers it
  * into the Plugins page's `plugins.row.config` slot), so this only tells the

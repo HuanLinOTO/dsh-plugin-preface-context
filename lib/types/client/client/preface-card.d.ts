@@ -1,18 +1,17 @@
 /**
- * The preface-context configuration card: a collapsible card on the plugin's
- * row page in the Plugins manager (`plugins.row.config`). Renders an enable
- * toggle and a multiline textarea for the context text. Stages edits locally
+ * The preface-context configuration card: the flattened form on the plugin's
+ * dedicated row page in the Plugins manager (`plugins.row.config`). Since dsh
+ * 0.1.7 the slot renders on the row's own detail page (the page draws the
+ * title, icon, breadcrumb, and description itself), so the card carries no
+ * disclosure chrome of its own — the edit body (enable toggle, multiline
+ * textarea, save/discard footer) is always expanded. Stages edits locally
  * and writes them on save through the bound {@link PrefaceCardController}.
  *
- * The chrome mirrors the upstream `PluginCard` shape (a header button
- * stacking name over description, a dirty pill, a rotating chevron; a body
- * with the form controls and a footer with Discard/Save) because the
- * upstream client value face exports no reusable card. Styles come from the
- * statically injected `preface-card.css` stylesheet (the loader never serves
- * `.css` artifacts); every color resolves through a `--dsw-alias-*` token so
- * the card adapts to the light/dark theme.
+ * Styles come from the statically injected `preface-card.css` stylesheet (the
+ * loader never serves `.css` artifacts); every color resolves through a
+ * `--dsw-alias-*` token so the card adapts to the light/dark theme.
  */
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots';
 import type { PrefaceCardFace, PrefaceCardActions } from './preface-card-controller.ts';
 /** Injected dependencies of the card (slot `inject`). */

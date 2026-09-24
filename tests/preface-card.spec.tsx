@@ -8,22 +8,12 @@
  * actions. These specs feed it a driven fixture (a real
  * `PrefaceCardController` over an in-memory stub scope + a stub
  * selector hook that reads the current snapshot per render) and assert
- * user-visible behavior.
- *
- * Browser-bundle dependencies (`@deepseek-ai/dsh-client-ui-primitives` ships
- * as a `__ModuleLoader__`-wrapped CJS bundle with inlined CSS) are stubbed
- * with `vi.mock` so the component renders under jsdom without the full
- * platform module table.
+ * user-visible behavior. The edit body renders flat (no disclosure header):
+ * controls are present on first paint.
  */
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-
-// Stub the browser-bundle icon import with a no-op component.
-vi.mock('@deepseek-ai/dsh-client-ui-primitives', () => ({
-  IconChevronDownOutlineRegular: ({ className }: { className?: string }) =>
-    null as never,
-}))
 
 import type { ConfigForm, ConfigFormSnapshot } from '@deepseek-ai/dsh-client-ui-settings/client'
 import { PrefaceCard } from '../src/client/preface-card.tsx'
@@ -115,24 +105,16 @@ describe('PrefaceCard availability', () => {
   })
 })
 
-describe('PrefaceCard collapsed state', () => {
-  it('renders the header (title + description) but not the body when collapsed', () => {
+describe('PrefaceCard flattened body', () => {
+  it('renders the textarea and toggle immediately, with no disclosure header', () => {
     const scope = stubScope({ enabled: true, contextText: '' })
     const controller = new PrefaceCardController(scope)
     render(<PrefaceCard {...cardProps(controller)} />)
-    expect(screen.getByText('Preface context')).toBeDefined()
-    expect(screen.getByText('Inject a text block as model-visible instructions at the start of every session.')).toBeDefined()
-    // The textarea is inside the collapsed body — not present until expanded.
-    expect(screen.queryByPlaceholderText('Enter the text to inject at the start of every session…')).toBeNull()
-  })
-
-  it('expands the body on header click, revealing the textarea and toggle', () => {
-    const scope = stubScope({ enabled: true, contextText: '' })
-    const controller = new PrefaceCardController(scope)
-    render(<PrefaceCard {...cardProps(controller)} />)
-    fireEvent.click(screen.getByRole('button', { name: /Show settings/ }))
+    // The edit body is the card's only content — present on first paint.
     expect(screen.getByPlaceholderText('Enter the text to inject at the start of every session…')).toBeDefined()
     expect(screen.getByRole('switch')).toBeDefined()
+    // The collapsed-era header controls are gone: no expand/collapse button.
+    expect(screen.queryByRole('button', { name: /Show settings/ })).toBeNull()
   })
 })
 
@@ -141,7 +123,6 @@ describe('PrefaceCard textarea editing', () => {
     const scope = stubScope({ enabled: true, contextText: '' })
     const controller = new PrefaceCardController(scope)
     render(<PrefaceCard {...cardProps(controller)} />)
-    fireEvent.click(screen.getByRole('button', { name: /Show settings/ }))
     const textarea = screen.getByPlaceholderText('Enter the text to inject at the start of every session…') as HTMLTextAreaElement
     fireEvent.change(textarea, { target: { value: 'staged text' } })
     expect(controller.snapshot.getSnapshot().contextText.text).toBe('staged text')
@@ -154,7 +135,6 @@ describe('PrefaceCard toggle', () => {
     const scope = stubScope({ enabled: true, contextText: '' })
     const controller = new PrefaceCardController(scope)
     render(<PrefaceCard {...cardProps(controller)} />)
-    fireEvent.click(screen.getByRole('button', { name: /Show settings/ }))
     const toggle = screen.getByRole('switch')
     expect(toggle.getAttribute('aria-checked')).toBe('true')
     fireEvent.click(toggle)
@@ -169,7 +149,6 @@ describe('PrefaceCard save', () => {
     const controller = new PrefaceCardController(scope)
     const actions = controller.inject()
     render(<PrefaceCard {...cardProps(controller)} />)
-    fireEvent.click(screen.getByRole('button', { name: /Show settings/ }))
     const textarea = screen.getByPlaceholderText('Enter the text to inject at the start of every session…')
     fireEvent.change(textarea, { target: { value: 'saved' } })
     // Confirm the edit staged before clicking save.

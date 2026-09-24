@@ -54,9 +54,9 @@ class MiniSnapshotStore<T> implements SnapshotStore<T> {
 
 /** The two fields this card edits, as draft text. */
 export interface PrefaceDraft {
-  /** `enabled` draft �?'true' or 'false'. */
+  /** `enabled` draft — 'true' or 'false'. */
   enabled: string
-  /** `contextText` draft �?the raw textarea value, whitespace preserved. */
+  /** `contextText` draft — the raw textarea value, whitespace preserved. */
   contextText: string
 }
 
@@ -70,7 +70,7 @@ export interface PrefaceFieldState {
 
 /** Card-level state shared with the component. */
 export interface PrefaceCardState {
-  /** False while the namespace is not served to this client. */
+  /** False while the entry's config form is not served to this client. */
   available: boolean
   /** Whether the Host document accepts writes. */
   writable: boolean
@@ -153,10 +153,10 @@ function parse(field: FieldName, text: string): { value: unknown } | { clear: tr
 }
 
 /**
- * Bridges the `preface-context` scope onto the card's staged form.
+ * Bridges the entry's `ConfigForm` onto the card's staged form.
  *
  * Publishes through a snapshot store because slot components read through a
- * snapshot selector, while both the scope and the local drafts change
+ * snapshot selector, while both the form and the local drafts change
  * underneath; every projection is rebuilt from the two together.
  */
 export class PrefaceCardController {
@@ -166,7 +166,7 @@ export class PrefaceCardController {
   private saving = false
   private failed = false
 
-  /** @param scope - the bound settings scope for the `preface-context` namespace. */
+  /** @param scope - the bound `ConfigForm` for the `dsh-plugin-preface-context` entry. */
   constructor(scope: ConfigForm<Record<string, unknown>>) {
     this.scope = scope
     this.store = new MiniSnapshotStore<PrefaceCardState>(this.project())

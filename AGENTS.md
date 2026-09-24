@@ -29,7 +29,7 @@ The plugin is a **dual-half** plugin (host + client). The host half listens to `
 | `src/config.ts` | Schemastery `Config` (`.volatile()` fields) + `PrefaceConfig`/`PrefaceEntryConfig` + `resolvePrefaceConfig` (strict unknown-key rejection) |
 | `src/settings.ts` | `installPrefacePage`: the `settings.configure({ auto: false })` own-page policy |
 | `src/client/index.ts` | Client entry: `inject = ['slots', 'locale', 'configForms']`, registers the `plugins.row.config` card |
-| `src/client/preface-card.tsx` | The card component: collapsible chrome + enable toggle + textarea |
+| `src/client/preface-card.tsx` | The card component: flat always-expanded body (enable toggle + textarea + footer) on the row's own detail page |
 | `src/client/preface-card-controller.ts` | `PrefaceCardController`: staged edit / save / discard / reset over `ConfigForm` |
 | `src/client/preface-card.css.ts` | Card stylesheet + `<style data-plugin-css>` install/dispose |
 | `src/client/bind-snapshot-selector.ts` | Inlined uSES bridge (upstream shim) |
@@ -39,7 +39,7 @@ The plugin is a **dual-half** plugin (host + client). The host half listens to `
 
 ```sh
 pnpm run typecheck    # tsc --noEmit (host + client)
-pnpm test             # vitest run (38 tests)
+pnpm test             # vitest run (37 tests)
 pnpm run build        # tsdown + tsc → lib/index.js, lib/client.js
 pnpm run bundle:client # tsdown only (skip tsc; for fast client rebuilds)
 ```

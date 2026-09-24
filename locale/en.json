@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Preface context",
+    "description": "Inject a text block as model-visible instructions at the start of every session."
+  }
+}

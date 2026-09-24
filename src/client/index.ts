@@ -4,10 +4,10 @@
  * keyed by `<package>#<row id>`, so it appears while the bundle row is enabled
  * and the Host serves the entry's config.
  *
- * Since dsh 0.1.7-rc.1 the client settings transport is `ctx.configForms`
- * (`settingsScope` is gone): the controller binds the entry's shared
- * `ConfigForm` through `ctx.configForms.get(entryId)`, whose reads ride the
- * settings describe mirror and whose writes go through `settings.mutate`.
+ * Since dsh 0.1.7-rc.1 the client settings transport is `ctx.configForms`:
+ * the controller binds the entry's shared `ConfigForm` through
+ * `ctx.configForms.get(entryId)`, whose reads ride the settings describe
+ * mirror and whose writes go through `settings.mutate`.
  *
  * Export discipline: value-imports ONLY the frozen platform module table
  * (React / cordis / ui-primitives); every other `@deepseek-ai/*` import is
@@ -48,8 +48,8 @@ const NS = 'settings.preface-context'
 
 /**
  * Profile entry id the host composes this plugin under: the `id` of the row in
- * `cordis.patch.yml`. It is also the settings namespace the Host serves the
- * entry's config under, so it keys both `ctx.configForms.get` and the
+ * `cordis.patch.yml`. It is also the entry id the Host serves the entry's
+ * config form under, so it keys both `ctx.configForms.get` and the
  * `plugins.row.config` registration.
  */
 const ENTRY_ID = 'dsh-plugin-preface-context'

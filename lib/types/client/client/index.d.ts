@@ -4,10 +4,10 @@
  * keyed by `<package>#<row id>`, so it appears while the bundle row is enabled
  * and the Host serves the entry's config.
  *
- * Since dsh 0.1.7-rc.1 the client settings transport is `ctx.configForms`
- * (`settingsScope` is gone): the controller binds the entry's shared
- * `ConfigForm` through `ctx.configForms.get(entryId)`, whose reads ride the
- * settings describe mirror and whose writes go through `settings.mutate`.
+ * Since dsh 0.1.7-rc.1 the client settings transport is `ctx.configForms`:
+ * the controller binds the entry's shared `ConfigForm` through
+ * `ctx.configForms.get(entryId)`, whose reads ride the settings describe
+ * mirror and whose writes go through `settings.mutate`.
  *
  * Export discipline: value-imports ONLY the frozen platform module table
  * (React / cordis / ui-primitives); every other `@deepseek-ai/*` import is
