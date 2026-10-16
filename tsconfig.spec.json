@@ -17,7 +17,7 @@
       "D:/Projects/deepseek-harness/dsh/node_modules/@types",
       "D:/Projects/deepseek-harness/dsh/scripts/types"
     ],
-    "types": ["node", "vitest/globals"],
+    "types": ["node"],
     "paths": {
       "@deepseek-ai/cordis": ["D:/Projects/deepseek-harness/dsh/vendor/cordis/lib/types/index.d.ts"],
       "@deepseek-ai/cosmokit": ["D:/Projects/deepseek-harness/dsh/vendor/cosmokit/lib/types/index.d.ts"],
@@ -35,8 +35,8 @@
       "@deepseek-ai/dsh-client-ui-primitives/client": ["D:/Projects/deepseek-harness/dsh/packages/client/ui-primitives/lib/types/client/index.d.ts"],
       "@deepseek-ai/dsh-client-ui-settings": ["D:/Projects/deepseek-harness/dsh/packages/client/ui-settings/lib/types/index.d.ts"],
       "@deepseek-ai/dsh-client-ui-settings/client": ["D:/Projects/deepseek-harness/dsh/packages/client/ui-settings/lib/types/client/index.d.ts"],
-      "@deepseek-ai/dsh-client-ui-settings-plugins": ["D:/Projects/deepseek-harness/dsh/packages/client/ui-settings-plugins/lib/types/index.d.ts"],
-      "@deepseek-ai/dsh-client-ui-settings-plugins/client": ["D:/Projects/deepseek-harness/dsh/packages/client/ui-settings-plugins/lib/types/client/index.d.ts"],
+      "@deepseek-ai/dsh-client-ui-plugin-manager": ["D:/Projects/deepseek-harness/dsh/packages/client/ui-plugin-manager/lib/types/index.d.ts"],
+      "@deepseek-ai/dsh-client-ui-plugin-manager/client": ["D:/Projects/deepseek-harness/dsh/packages/client/ui-plugin-manager/lib/types/client/index.d.ts"],
       "@deepseek-ai/dsh-client-ui-renderer": ["D:/Projects/deepseek-harness/dsh/packages/client/ui-renderer/lib/types/index.d.ts"],
       "@deepseek-ai/dsh-client-ui-renderer/client": ["D:/Projects/deepseek-harness/dsh/packages/client/ui-renderer/lib/types/client/index.d.ts"],
       "@deepseek-ai/dsh-client-connection": ["D:/Projects/deepseek-harness/dsh/packages/client/connection/lib/types/index.d.ts"],

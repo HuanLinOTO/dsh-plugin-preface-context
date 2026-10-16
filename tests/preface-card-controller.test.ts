@@ -24,7 +24,6 @@ function stubScope(initial: PrefaceConfig, base: Partial<PrefaceConfig> = initia
     user,
     revision: 0,
     writable: true,
-    mode: 'host',
   })
   return {
     getSnapshot: snapshot,

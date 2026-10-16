@@ -40,7 +40,6 @@ function stubScope(initial: PrefaceConfig, base: Partial<PrefaceConfig> = initia
     user,
     revision: 0,
     writable,
-    mode: 'host',
   })
   return {
     getSnapshot: snapshot,
@@ -78,11 +77,15 @@ function stubUseSnapshot(controller: PrefaceCardController): PrefaceCardProps['u
 /** Build the full card props the renderer would bind. */
 function cardProps(controller: PrefaceCardController): PrefaceCardProps {
   const actions = controller.inject()
+  // GlobalStandardProps carries `usePanelInfo` (the ui-layout merge) since
+  // dsh 0.2.1; the card never reads it, so a fixed snapshot satisfies the seat.
+  const usePanelInfo: PrefaceCardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
   return {
     view: 'page',
     t,
     usePrefaceCard: stubUseSnapshot(controller),
-    hooks: { prefaceCard: controller.snapshot },
+    usePanelInfo,
+    // `hooks` (the card's snapshot store) arrives through `...actions`.
     ...actions,
   }
 }

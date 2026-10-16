@@ -28,15 +28,17 @@ describe('Config schema', () => {
   })
 
   it('rejects an unknown key (strict schema)', () => {
-    expect(() => resolvePrefaceConfig({ enabled: true, contextText: '', bogus: 1 })).toThrow(/unknown config key "bogus"/)
+    // Unknown keys are real at the profile-YAML boundary, where values arrive
+    // untyped; the cast restates that boundary for the typechecker.
+    expect(() => resolvePrefaceConfig({ enabled: true, contextText: '', bogus: 1 } as unknown as Partial<PrefaceConfig>)).toThrow(/unknown config key "bogus"/)
   })
 
   it('rejects a non-boolean enabled', () => {
-    expect(() => Config({ enabled: 'yes', contextText: '' })).toThrow()
+    expect(() => Config({ enabled: 'yes', contextText: '' } as unknown as Parameters<typeof Config>[0])).toThrow()
   })
 
   it('rejects a non-string contextText', () => {
-    expect(() => Config({ enabled: true, contextText: 42 })).toThrow()
+    expect(() => Config({ enabled: true, contextText: 42 } as unknown as Parameters<typeof Config>[0])).toThrow()
   })
 
   it('accepts a multiline contextText verbatim (no trim)', () => {
